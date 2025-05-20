@@ -1,0 +1,54 @@
+auth_enabled: false  # 禁用身份驗證，在測試環境中使用
+
+server: # 定義 Loki 自己的服務器設置
+  http_listen_port: 3100  # Loki 提供 HTTP API 的端口，Grafana 會連接到這個端口來查詢日誌
+  grpc_listen_port: 9096  # gRPC 服務的監聽埠，用於 Loki 元件之間的內部通訊
+  log_level: info  # 設定日誌級別為 info，提供詳細的日誌資訊
+  grpc_server_max_concurrent_streams: 1000  # 限制每個 gRPC 連接的最大並發流數量
+
+common: # Loki 的通用配置，影響多個元件
+  instance_addr: 127.0.0.1  # Loki 實例的 IP 地址
+  path_prefix: /tmp/loki  # Loki 儲存資料的基本路徑
+  storage: # 定義日誌塊和規則的存儲位置
+    filesystem:
+      chunks_directory: /tmp/loki/chunks  # 日誌塊資料的儲存目錄
+      rules_directory: /tmp/loki/rules  # 規則資料的儲存目錄
+  replication_factor: 1  # 資料複製因子，單節點設置為 1（1表示沒有複製，單節點部署）
+  ring: # Loki 使用的分佈式一致性哈希環，用於擴展和故障轉移
+    kvstore:
+      store: inmemory  # 使用記憶體內 KV 存儲來管理 Loki 分散式系統的狀態
+
+query_range: # 配置 Loki 查詢的處理方式。
+  results_cache: # 配置查詢結果的緩存機制
+    cache:
+      embedded_cache: # 內嵌的緩存系統
+        enabled: true  # 啟用內嵌快取
+        max_size_mb: 100  # 設定快取的最大大小為 100MB
+
+limits_config:
+  metric_aggregation_enabled: true  # 啟用指標聚合功能
+
+schema_config: # Loki 如何組織和存儲日誌數據。
+  configs:
+    - from: 2020-10-24  # 這個方案配置從何時開始生效
+      store: tsdb  # 使用時間序列數據庫（TSDB）作為存儲引擎
+      object_store: filesystem  # 使用檔案系統作為物件存儲 (用文件系統存儲實際的日誌數據)
+      schema: v13  # 使用 v13 版本的索引架構
+      index:
+        prefix: index_  # 索引檔案的前綴
+        period: 24h  # 每 24 小時創建一個新的索引
+
+pattern_ingester: # Loki 的日誌接收器行為
+  enabled: true  # 啟用模式擷取器
+  metric_aggregation: # 在接收日誌時進行指標聚合
+    loki_address: localhost:3100  # 設置用於指標聚合的 Loki 地址
+
+ruler: # Loki 的告警規則評估
+  alertmanager_url: http://localhost:9093  # AlertManager 的 URL，用於發送告警
+
+frontend: # Loki 的查詢前端行為
+  encoding: protobuf  # 使用 protobuf 作為前端編碼格式
+
+# 預設情況下，Loki 會向 Grafana Labs 發送匿名但唯一可識別的使用和配置分析，可以取消註釋以下行來停用報告
+#analytics: # 配置匿名使用數據收集
+#  reporting_enabled: false # 禁用向 Grafana Labs 發送匿名使用數據

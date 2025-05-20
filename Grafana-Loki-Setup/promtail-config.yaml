@@ -1,0 +1,30 @@
+server:
+  http_listen_port: 9080  # Promtail 的 HTTP 服務監聽埠，用於健康檢查和指標暴露
+  grpc_listen_port: 0     # gRPC 監聽埠設為 0 表示不啟用 gRPC 服務
+
+positions:
+  filename: /tmp/positions.yaml  # 儲存日誌檔案讀取位置的檔案，幫助 Promtail 記住上次讀取到哪裡，重啟後不會重複讀取
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push  # 定義 Loki 伺服器的地址，Promtail 會將收集到的日誌推送到這個端點
+
+scrape_configs:
+- job_name: system  # 任務名稱，用於識別這組收集配置
+  static_configs:
+  - targets:
+      - localhost  # 目標主機，這裡是本機
+    labels:
+      job: project_structure  # 為收集的日誌添加標籤，方便在 Loki 中查詢
+      __path__: /var/log/*log  # 定義要收集的日誌檔案路徑，這裡會收集 /var/log/ 目錄下所有以 log 結尾的檔案
+
+pipeline_stages:
+    # 解析 JSON 格式的日誌
+    - json:
+        expressions:
+          timestamp: timestamp
+          level: level
+          message: message
+          exception: exception
+          requestId: requestId
+          requestPath: requestPath
+          sourceContext: sourceContext
