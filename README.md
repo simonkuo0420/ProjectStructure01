@@ -105,8 +105,6 @@ ProjectStructure01
 
 ## 技術棧
 
-<img src="/api/placeholder/900/300" alt="Technology Stack" />
-
 - **.NET 8**: 最新的 .NET 基礎框架
 - **ASP.NET Core Web API**: Web API 實現
 - **Entity Framework Core**: 功能完整的 ORM 框架
@@ -123,8 +121,6 @@ ProjectStructure01
 
 ### 儲存庫模式與工作單元模式
 
-<img src="/api/placeholder/800/250" alt="Repository and Unit of Work Pattern" />
-
 - **儲存庫模式 (Repository Pattern)**: 提供資料存取的抽象層，隔離資料存取邏輯
 - **工作單元模式 (Unit of Work Pattern)**: 管理交易和資料庫操作的一致性
 
@@ -139,8 +135,6 @@ ProjectStructure01
 ## 資料庫設定
 
 本專案使用 Entity Framework Core 的 Code-First 方法管理資料庫結構。資料庫模型如下：
-
-<img src="/api/placeholder/700/400" alt="Database Schema" />
 
 ### 資料庫遷移指令
 
